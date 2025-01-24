@@ -5,7 +5,10 @@ package Automationtesting;
 import base.BaseTest;
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.WaitForSelectorState;
+import configs.ConfigLoader;
 import org.testng.annotations.Test;
+import utills.MetamaskHelper;
+
 import java.awt.*;
 import java.nio.file.Paths;
 import java.util.List;
@@ -15,24 +18,23 @@ public class RentTestCases extends BaseTest {
     @Test
     public void VerifyTheDAPP_Application_With_RentSection() throws InterruptedException {
         Playwright playwright = Playwright.create();
-        String pathToExtension = Paths.get("C:/Metamask/Playwright/nkbihfbeogaeaoehlefnkodbefgpgknn/12.9.3_0")
-                .toAbsolutePath().toString();
-        String userDataDir = "C:\\Users\\DELL\\AppData\\Local\\Google\\Chrome\\User Data";
 
+        String pathToExtension = ConfigLoader.METAMASK_EXTENSION_PATH;
+        String userDataDir = ConfigLoader.CHROME_USER_DATA_DIR;
         BrowserType.LaunchPersistentContextOptions options = new BrowserType.LaunchPersistentContextOptions()
-                .setHeadless(false) // Set to false to see the browser window
+                .setHeadless(false)
                 .setArgs(List.of(
                         "--disable-extensions-except=" + pathToExtension,
-                        "--load-extension=" + pathToExtension)) // Add extension path
-                .setChannel("chrome"); // Optional, to launch a specific version/channel of Chromium
+                        "--load-extension=" + pathToExtension))
+                .setChannel("chrome");
 
-        // Launch the browser with a persistent context
+        // Launch browser with persistent context
         BrowserContext browserContext = playwright.chromium().launchPersistentContext(
-                Paths.get(userDataDir), // Path to user data directory
-                options // Pass the configured options
+                Paths.get(userDataDir),
+                options
         );
 
-        // Maximize the browser window
+        // Maximize browser window
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = screenSize.width;
         int height = screenSize.height;
@@ -43,20 +45,32 @@ public class RentTestCases extends BaseTest {
         browserContext.pages().get(0).setViewportSize(width, height);
         System.out.println("Browser window maximized to width: " + width + ", height: " + height);
 
-        browserContext.setDefaultTimeout(60000); // Increased timeout
+        browserContext.setDefaultTimeout(60000);
         browserContext.clearCookies();
 
-        // Open MetaMask extension and unlock
-        Page metamaskextentionPage = browserContext.pages().get(0);
-        metamaskextentionPage.navigate("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#");
-        metamaskextentionPage.locator("//input[@data-testid='unlock-password']").fill("Saty@9618");
-        metamaskextentionPage.locator("[data-testid='unlock-submit']").click();
+        // Unlock MetaMask
+        Page metamaskExtensionPage = browserContext.pages().get(0);
+        MetamaskHelper.unlockMetaMask(metamaskExtensionPage);
 
-        // Navigate to DApp
-        Page testnetpage = browserContext.newPage();
-        testnetpage.navigate("https://testnet.streamnft.tech/skale%20nebula/discover");
+       /* metamaskExtensionPage.navigate("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#");
+        metamaskExtensionPage.locator("//input[@data-testid='unlock-password']").fill("Saty@9618");
+        metamaskExtensionPage.locator("[data-testid='unlock-submit']").click();
+*/
+        // Test both applications with different base URLs
+        testApplication(browserContext, "https://dev.streamnft.tech/open%20campus");
+        testApplication(browserContext, "https://dev.ed3.xyz/");
 
-        // Connect wallet
+        System.out.println("All steps completed successfully for both applications.");
+    }
+
+
+
+        private void testApplication(BrowserContext browserContext, String baseURL) throws InterruptedException {
+            System.out.println("Testing application with base URL: " + baseURL);
+
+            Page testnetpage = browserContext.newPage();
+
+            // Connect wallet
         Locator connectBtn = testnetpage.locator("//div[@class='flex items-center justify-center flex-row font-numans']//button[@type='button'][normalize-space()='Connect']");
         connectBtn.click();
         Locator metamaskBtn = testnetpage.locator("//div/div[contains(text(),'MetaMask')]");
@@ -77,14 +91,13 @@ public class RentTestCases extends BaseTest {
         confirmBtn.waitFor(new Locator.WaitForOptions()
                 .setState(WaitForSelectorState.VISIBLE));
 
-
         confirmBtn.click();
         System.out.println("Transaction confirmed in MetaMask.");
 
         // Navigate to Loan/Lend page
         Thread.sleep(5000);
 
-        testnetpage.navigate("https://testnet.streamnft.tech/Skale%20nebula/rent");
+        testnetpage.navigate(baseURL + "/rent/");
 
         // Wait for transaction to complete
         Locator nftElement = testnetpage.locator("//h4[@id='EduVerse Early Adopter']");
@@ -92,7 +105,7 @@ public class RentTestCases extends BaseTest {
         nftElement.click();
 
         // Navigate to my assets page
-        testnetpage.navigate("https://dev.streamnft.tech/Open%20campus/rent/EduVerse-Early-Adopter/myassets");
+        testnetpage.navigate(baseURL + "/rent/EduVerse-Early-Adopter/myassets/");
 
         // Perform Lend actions
         // Click on the first 'Lend' button
