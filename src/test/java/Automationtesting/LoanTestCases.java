@@ -9,6 +9,10 @@ import java.awt.*;
 import java.nio.file.Paths;
 import java.util.List;
 
+import utills.MetamaskHelper;
+//import utils.MetaMaskHelper;
+
+
 public class LoanTestCases extends BaseTest {
 
     @Test
@@ -46,13 +50,15 @@ public class LoanTestCases extends BaseTest {
 
         // Unlock MetaMask
         Page metamaskExtensionPage = browserContext.pages().get(0);
-        metamaskExtensionPage.navigate("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#");
+        MetamaskHelper.unlockMetaMask(metamaskExtensionPage);
+
+       /* metamaskExtensionPage.navigate("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#");
         metamaskExtensionPage.locator("//input[@data-testid='unlock-password']").fill("Saty@9618");
         metamaskExtensionPage.locator("[data-testid='unlock-submit']").click();
-
+*/
         // Test both applications with different base URLs
         testApplication(browserContext, "https://dev.streamnft.tech/open%20campus");
-        testApplication(browserContext, "https://dev.ed3.xyz/");     //https://dev.ed3.xyz/loan/loans
+        testApplication(browserContext, "https://dev.ed3.xyz/");
 
         System.out.println("All steps completed successfully for both applications.");
     }
