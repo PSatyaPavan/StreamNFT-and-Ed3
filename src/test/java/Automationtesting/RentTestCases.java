@@ -1,7 +1,6 @@
 package Automationtesting;
 
 
-
 import base.BaseTest;
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.WaitForSelectorState;
@@ -33,7 +32,6 @@ public class RentTestCases extends BaseTest {
                 Paths.get(userDataDir),
                 options
         );
-
         // Maximize browser window
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = screenSize.width;
@@ -45,17 +43,15 @@ public class RentTestCases extends BaseTest {
         browserContext.pages().get(0).setViewportSize(width, height);
         System.out.println("Browser window maximized to width: " + width + ", height: " + height);
 
-        browserContext.setDefaultTimeout(60000);
+        browserContext.setDefaultTimeout(600000);
         browserContext.clearCookies();
 
         // Unlock MetaMask
         Page metamaskExtensionPage = browserContext.pages().get(0);
-        MetamaskHelper.unlockMetaMask(metamaskExtensionPage);
-
-       /* metamaskExtensionPage.navigate("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#");
+        metamaskExtensionPage.navigate("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#");
         metamaskExtensionPage.locator("//input[@data-testid='unlock-password']").fill("Saty@9618");
         metamaskExtensionPage.locator("[data-testid='unlock-submit']").click();
-*/
+
         // Test both applications with different base URLs
         testApplication(browserContext, "https://dev.streamnft.tech/open%20campus");
         testApplication(browserContext, "https://dev.ed3.xyz/");
@@ -64,15 +60,16 @@ public class RentTestCases extends BaseTest {
     }
 
 
+    private void testApplication(BrowserContext browserContext, String baseURL) throws InterruptedException {
 
-        private void testApplication(BrowserContext browserContext, String baseURL) throws InterruptedException {
-            System.out.println("Testing application with base URL: " + baseURL);
+        System.out.println("Testing application with base URL: " + baseURL);
+         browserContext.setDefaultTimeout(180000);
+        Page testnetpage = browserContext.newPage();
+        testnetpage.navigate(baseURL + "/loan/lend"); // Navigate to DApp
 
-            Page testnetpage = browserContext.newPage();
-
-            // Connect wallet
-        Locator connectBtn = testnetpage.locator("//div[@class='flex items-center justify-center flex-row font-numans']//button[@type='button'][normalize-space()='Connect']");
-        connectBtn.click();
+        // Connect wallet
+        Locator connectBtn = testnetpage.locator("button[id='connect-button']");
+        connectBtn.first().click();
         Locator metamaskBtn = testnetpage.locator("//div/div[contains(text(),'MetaMask')]");
 
         // Wait for MetaMask connection page
@@ -82,19 +79,33 @@ public class RentTestCases extends BaseTest {
                 .setState(WaitForSelectorState.VISIBLE));
         metaconnectBtn.click();
 
-        // Handle Sign Message in DApp
-        Locator signinButton = testnetpage.locator("//div[text()='Sign message']");
-        signinButton.click();
+        // Handle sign message
+        Locator signInButton = testnetpage.locator("//div[text()='Sign message']");
+        signInButton.click();
 
-        // Handle Confirm Button in MetaMask for Transaction
         Locator confirmBtn = extensionPage.locator("[data-testid='confirm-footer-button']");
         confirmBtn.waitFor(new Locator.WaitForOptions()
                 .setState(WaitForSelectorState.VISIBLE));
-
         confirmBtn.click();
         System.out.println("Transaction confirmed in MetaMask.");
 
+       // Thread.sleep(5000);
         // Navigate to Loan/Lend page
+        //Thread.sleep(5000);
+
+
+        Locator MintNFTButton = testnetpage.locator("//span[normalize-space()='Mint Test NFT']");
+        MintNFTButton.click();
+
+        Locator Edudevbutton = testnetpage.locator("//span[normalize-space()='EduVerse Early Adopter']");
+        Edudevbutton.click();
+        handleMetaMaskConfirmation(browserContext);
+
+        Thread.sleep(5000);
+
+        Locator CloseButton = testnetpage.locator("//div[text()='Close']");
+        CloseButton.click();
+
         Thread.sleep(5000);
 
         testnetpage.navigate(baseURL + "/rent/");
@@ -115,7 +126,7 @@ public class RentTestCases extends BaseTest {
         lendDurationInput.fill("2");
 
         Locator priceInput = testnetpage.locator("#price-input");
-        priceInput.fill("0.001");
+        priceInput.fill("0.005");
 
         testnetpage.locator("#Lend").click();
 
@@ -123,20 +134,26 @@ public class RentTestCases extends BaseTest {
         handleMetaMaskConfirmation(browserContext);
         handleMetaMaskConfirmation(browserContext);
 
+        //Thread.sleep(5000);
 
-        Thread.sleep(10000);
+       /* Locator ListButton = testnetpage.locator("#Listed");
+        ListButton.click();*/
+
+
+        //Thread.sleep(15000);
 
         // Cancel the lend action
-        Locator cancelButton = testnetpage.locator("#cancel-1");
+       /* Locator cancelButton = testnetpage.locator("#cancel-3");
+    *//*    cancelButton.waitFor(new Locator.WaitForOptions()
+                .setState(WaitForSelectorState.VISIBLE)
+                .setTimeout(5000)); // Timeout in milliseconds*//*
         cancelButton.click();
 
 
         // Confirm the cancel action
         Locator cancelDiv = testnetpage.locator("#Cancel");
         cancelDiv.click();
-
         handleMetaMaskConfirmation(browserContext);
-
         Thread.sleep(5000);
 
         // Perform Owned button actions
@@ -161,7 +178,7 @@ public class RentTestCases extends BaseTest {
         rentButton.first().click();
 
         Locator durationInput = testnetpage.locator("#duration-input");
-        durationInput.fill("1");
+        durationInput.fill("0.1");
 
         Thread.sleep(5000);
         testnetpage.locator("#Rent").click();
@@ -171,7 +188,7 @@ public class RentTestCases extends BaseTest {
         handleMetaMaskConfirmation(browserContext);
 
         Thread.sleep(5000);
-        testnetpage.locator("//h5[text()='Marketplace']").click();
+        testnetpage.locator("//h5[text()='Marketplace']").click();*/
     }
 
     private void handleMetaMaskConfirmation(BrowserContext browserContext) throws InterruptedException {

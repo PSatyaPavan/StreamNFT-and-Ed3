@@ -21,7 +21,6 @@
   </properties>
 
   <dependencies>
-    <!-- Testing Dependencies -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -35,14 +34,12 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Playwright Dependency -->
     <dependency>
       <groupId>com.microsoft.playwright</groupId>
       <artifactId>playwright</artifactId>
       <version>${playwright.version}</version>
     </dependency>
 
-    <!-- Logging Dependencies -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
@@ -59,21 +56,18 @@
       <version>${log4j.version}</version>
     </dependency>
 
-    <!-- Apache POI -->
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi-ooxml</artifactId>
       <version>${poi.version}</version>
     </dependency>
 
-    <!-- Reporting -->
     <dependency>
       <groupId>com.aventstack</groupId>
       <artifactId>extentreports</artifactId>
       <version>${extentreports.version}</version>
     </dependency>
 
-    <!-- Other Dependencies -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
